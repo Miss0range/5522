@@ -1,7 +1,7 @@
 #Hi. This is just here so I can push the project. We haven't actually done anything yet.
 import skimage
 import sklearn
-import matplotlib
+import matplotlib as plt
 
 class PreProcessing():
     def __init__(self):
