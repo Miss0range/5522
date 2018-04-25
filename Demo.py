@@ -143,7 +143,7 @@ def vis_segmentation(image, seg_map,index):
   ax.tick_params(width=0.0)
   plt.grid('off')
 
-  plt.savefig("Result/result"+str(index)+".png")
+  plt.savefig("Result/CNNresult"+str(index)+".png")
   '''plt.show()'''
 
 
@@ -208,6 +208,11 @@ def run_visualization(url,index):
 
   vis_segmentation(resized_im, seg_map, index)
 ind=0
+if (os.path.isdir("Result")):
+    '''do nothing'''
+else:
+    os.mkdir("Result")
+
 for file in os.listdir("Kaggle_Image_TrainingData/train"):
     image_url ="Kaggle_Image_TrainingData/train/"+file
     run_visualization(image_url,ind)

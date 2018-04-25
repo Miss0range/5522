@@ -115,7 +115,7 @@ flags.DEFINE_boolean('upsample_logits', True,
 
 # Settings for fine-tuning the network.
 
-flags.DEFINE_string('tf_initial_checkpoint',None,
+flags.DEFINE_string('tf_initial_checkpoint',"model.ckpt.index",
                     'The initial checkpoint in tensorflow format.')
 
 # Set to False if one does not want to re-use the trained classifier weights.
@@ -161,7 +161,7 @@ flags.DEFINE_string('dataset', 'pascal_voc_seg',
 flags.DEFINE_string('train_split', 'train',
                     'Which split of the dataset to be used for training')
 
-flags.DEFINE_string('dataset_dir', None, 'Where the dataset reside.')
+flags.DEFINE_string('dataset_dir',"5522new\Kaggle_Image_TrainingData", 'Where the dataset reside.')
 
 
 def _build_deeplab(inputs_queue, outputs_to_num_classes, ignore_label):
