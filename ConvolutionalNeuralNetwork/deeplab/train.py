@@ -19,12 +19,12 @@ See model.py for more details and usage.
 
 import six
 import tensorflow as tf
-from deeplab import common
-from deeplab import model
-from deeplab.datasets import segmentation_dataset
-from deeplab.utils import input_generator
-from deeplab.utils import train_utils
-from deployment import model_deploy
+from ConvolutionalNeuralNetwork.deeplab import common
+from ConvolutionalNeuralNetwork.deeplab import model
+from ConvolutionalNeuralNetwork.deeplab.datasets import segmentation_dataset
+from ConvolutionalNeuralNetwork.deeplab.utils import input_generator
+from ConvolutionalNeuralNetwork.deeplab.utils import train_utils
+from ConvolutionalNeuralNetwork.slim.deployment import model_deploy
 
 slim = tf.contrib.slim
 
@@ -55,7 +55,7 @@ flags.DEFINE_integer('task', 0, 'The task ID.')
 
 # Settings for logging.
 
-flags.DEFINE_string('train_logdir', None,
+flags.DEFINE_string('train_logdir', "5522new/Result",
                     'Where the checkpoint and logs are stored.')
 
 flags.DEFINE_integer('log_steps', 10,
@@ -115,7 +115,7 @@ flags.DEFINE_boolean('upsample_logits', True,
 
 # Settings for fine-tuning the network.
 
-flags.DEFINE_string('tf_initial_checkpoint', None,
+flags.DEFINE_string('tf_initial_checkpoint',None,
                     'The initial checkpoint in tensorflow format.')
 
 # Set to False if one does not want to re-use the trained classifier weights.

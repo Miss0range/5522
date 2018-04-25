@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Provides data for the flowers dataset.
+"""Provides data for the Kaggle Canvas dataset.
 
 The dataset scripts used to create the dataset can be found at:
-tensorflow/models/research/slim/datasets/download_and_convert_flowers.py
+tensorflow/models/research/slim/datasets/download_and_convert_mnist.py
 """
 
 from __future__ import absolute_import
@@ -25,27 +25,27 @@ from __future__ import print_function
 import os
 import tensorflow as tf
 
-from ConvolutionalNeuralNetwork.slim.datasets import dataset_utils
+from datasets import dataset_utils
 
 slim = tf.contrib.slim
 
-_FILE_PATTERN = 'flowers_%s_*.tfrecord'
+_FILE_PATTERN = 'mnist_%s.tfrecord'
 
-SPLITS_TO_SIZES = {'train': 3320, 'validation': 350}
+_SPLITS_TO_SIZES = {'train': 60000, 'test': 10000}
 
-_NUM_CLASSES = 5
+_NUM_CLASSES = 10
 
 _ITEMS_TO_DESCRIPTIONS = {
-    'image': 'A color image of varying size.',
-    'label': 'A single integer between 0 and 4',
+    'image': 'A [28 x 28 x 1] grayscale image.',
+    'label': 'A single integer between 0 and 9',
 }
 
 
 def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
-  """Gets a dataset tuple with instructions for reading flowers.
+  """Gets a dataset tuple with instructions for reading MNIST.
 
   Args:
-    split_name: A train/validation split name.
+    split_name: A train/test split name.
     dataset_dir: The base directory of the dataset sources.
     file_pattern: The file pattern to use when matching the dataset sources.
       It is assumed that the pattern contains a '%s' string so that the split
@@ -56,9 +56,9 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
     A `Dataset` namedtuple.
 
   Raises:
-    ValueError: if `split_name` is not a valid train/validation split.
+    ValueError: if `split_name` is not a valid train/test split.
   """
-  if split_name not in SPLITS_TO_SIZES:
+  if split_name not in _SPLITS_TO_SIZES:
     raise ValueError('split name %s was not recognized.' % split_name)
 
   if not file_pattern:
@@ -71,14 +71,14 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
 
   keys_to_features = {
       'image/encoded': tf.FixedLenFeature((), tf.string, default_value=''),
-      'image/format': tf.FixedLenFeature((), tf.string, default_value='png'),
+      'image/format': tf.FixedLenFeature((), tf.string, default_value='raw'),
       'image/class/label': tf.FixedLenFeature(
-          [], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
+          [1], tf.int64, default_value=tf.zeros([1], dtype=tf.int64)),
   }
 
   items_to_handlers = {
-      'image': slim.tfexample_decoder.Image(),
-      'label': slim.tfexample_decoder.Tensor('image/class/label'),
+      'image': slim.tfexample_decoder.Image(shape=[28, 28, 1], channels=1),
+      'label': slim.tfexample_decoder.Tensor('image/class/label', shape=[]),
   }
 
   decoder = slim.tfexample_decoder.TFExampleDecoder(
@@ -92,7 +92,7 @@ def get_split(split_name, dataset_dir, file_pattern=None, reader=None):
       data_sources=file_pattern,
       reader=reader,
       decoder=decoder,
-      num_samples=SPLITS_TO_SIZES[split_name],
-      items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
+      num_samples=_SPLITS_TO_SIZES[split_name],
       num_classes=_NUM_CLASSES,
+      items_to_descriptions=_ITEMS_TO_DESCRIPTIONS,
       labels_to_names=labels_to_names)
