@@ -1,4 +1,5 @@
 #@title Imports
+#Modified by Jiachen Zhang
 
 import os
 from io import BytesIO
@@ -161,8 +162,6 @@ def vis_segmentation(image, seg_map,index):
   plt.grid('off')
 
   plt.savefig("Result/CNNresult"+str(index)+".png")
-  '''plt.show()'''
-
 
 LABEL_NAMES = np.asarray([
     'background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus',
@@ -224,23 +223,27 @@ def run_visualization(url,index,file):
   vis_segmentation(resized_im, seg_map, index)
 
   mask = Image.open("Kaggle_Image_TrainingData\\train_masks\\" + file[0:15] + "_mask.gif")
-  resize_mask=MODEL.resizeO(mask)
-  array_mask=np.array(resize_mask)
+  mask = MODEL.resizeO(mask)
+  mask= np.array(mask)
+  labels = np.reshape(seg_map, (mask.shape[0], mask.shape[1]))
+  rgb_label = np.reshape(labels, (mask.shape[0], mask.shape[1], 1))
+  rgb_label = np.tile(rgb_label, (1, 1, 3))
+
   errors=[]
   for i in range (0,2):
-      seg_map[seg_map==i]=0
-      seg_map[seg_map!=i]=255
-      nerror=0
+      nerror = 0
       total = 0
-      for k,j in zip(seg_map,array_mask,):
-          if j.all() == k.all():
-              print(j)
-              print(k)
-              nerror = nerror + 1
+      new_label=rgb_label.copy()
+      new_label[rgb_label==i]=0
+      new_label[rgb_label!=i]=255
+      for k,j in zip(mask,new_label):
+          if j.any()!=k.any():
+              nerror=nerror + 1
           total = total + 1
-      nerror = nerror / total
-      errors.append(nerror)
-  return max(errors)
+      getcontext().prec = 100
+      avg_nerror = nerror / total
+      errors.append(avg_nerror)
+  return min(errors)
 
 
 
