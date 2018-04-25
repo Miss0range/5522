@@ -8,10 +8,12 @@ from six.moves import urllib
 
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt2
 import numpy as np
 from PIL import Image
 
 import tensorflow as tf
+from decimal import *
 
 #@title Helper methods
 
@@ -67,6 +69,21 @@ class DeepLabModel(object):
     seg_map = batch_seg_map[0]
     return resized_image, seg_map
 
+  def resizeO(self, image):
+    """Runs inference on a single image.
+
+    Args:
+      image: A PIL.Image object, raw input image.
+
+    Returns:
+      resized_image: RGB image resized from original input image.
+      seg_map: Segmentation map of `resized_image`.
+    """
+    width, height = image.size
+    resize_ratio = 1.0 * self.INPUT_SIZE / max(width, height)
+    target_size = (int(resize_ratio * width), int(resize_ratio * height))
+    resized_image = image.convert('RGB').resize(target_size, Image.ANTIALIAS)
+    return resized_image
 
 def create_pascal_label_colormap():
   """Creates a label colormap used in PASCAL VOC segmentation benchmark.
@@ -193,8 +210,7 @@ IMAGE_URL = ''  #@param {type:"string"}
 _SAMPLE_URL = ('https://github.com/tensorflow/models/blob/master/research/'
                'deeplab/g3doc/img/%s.jpg?raw=true')
 
-
-def run_visualization(url,index):
+def run_visualization(url,index,file):
   """Inferences DeepLab model and visualizes result."""
   try:
     orignal_im = Image.open(url)
@@ -205,15 +221,42 @@ def run_visualization(url,index):
 
   print('running deeplab on image %s...' % url)
   resized_im, seg_map = MODEL.run(orignal_im)
-
   vis_segmentation(resized_im, seg_map, index)
-ind=0
+
+  mask = Image.open("Kaggle_Image_TrainingData\\train_masks\\" + file[0:15] + "_mask.gif")
+  resize_mask=MODEL.resizeO(mask)
+  array_mask=np.array(resize_mask)
+  errors=[]
+  for i in range (0,2):
+      seg_map[seg_map==i]=0
+      seg_map[seg_map!=i]=255
+      nerror=0
+      total = 0
+      for k,j in zip(seg_map,array_mask,):
+          if j.all() == k.all():
+              print(j)
+              print(k)
+              nerror = nerror + 1
+          total = total + 1
+      nerror = nerror / total
+      errors.append(nerror)
+  return max(errors)
+
+
+
 if (os.path.isdir("Result")):
     '''do nothing'''
 else:
     os.mkdir("Result")
 
-for file in os.listdir("Kaggle_Image_TrainingData/train"):
-    image_url ="Kaggle_Image_TrainingData/train/"+file
-    run_visualization(image_url,ind)
+
+ind=0
+total_error=0
+for file in os.listdir("Kaggle_Image_TrainingData/train1"):
+    image_url ="Kaggle_Image_TrainingData/train1/"+file
+    error=run_visualization(image_url,ind,file)
+    total_error= total_error+error
     ind=ind+1
+getcontext().prec = 28
+avg=total_error/ind
+print(avg)

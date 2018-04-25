@@ -16,13 +16,9 @@ def segmentImage():
 
     img = spm.imread("Kaggle_Image_TrainingData\Train\\" + name +".jpg" )
     mask =spm.imread("Kaggle_Image_TrainingData\\train_masks\\" +name+ "_mask.gif")
-    pyplot.imshow(mask)
-    pyplot.show(block=True)
     mask[mask==0] = 1
     mask[mask==255]=0
     mask[mask==1]=255
-    pyplot.imshow(mask)
-    pyplot.show(block=True)
 
     ab= img[:,:,2:3]
     height =ab.shape[0]
@@ -55,13 +51,12 @@ def segmentImage():
                 nerror=nerror+1
             total=total+1
         nerror=nerror/total
-        error=1-nerror
-        print(error)
-        errors.append(error)
+        print(nerror)
+        errors.append(nerror)
         pyplot.imshow(color)
-        pyplot.xlabel(str(i) + "-cluster:Error"+str(error))
+        pyplot.xlabel(str(i) + "-cluster:Error"+str(nerror))
         pyplot.savefig("Result\\"+name+ "result"+str(i))
-    print(min(errors))
+    print(max(errors))
 
 
 #main
